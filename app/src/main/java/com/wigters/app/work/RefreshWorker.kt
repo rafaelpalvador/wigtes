@@ -4,9 +4,14 @@ import android.content.Context
 import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.wigters.app.data.ActivityRepo
+import com.wigters.app.data.WeatherRepo
+import com.wigters.app.widget.DashboardWidget
 import com.wigters.app.widget.SystemWidget
 import java.util.concurrent.TimeUnit
 
@@ -14,7 +19,11 @@ import java.util.concurrent.TimeUnit
 class RefreshWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        SystemWidget().updateAll(applicationContext)
+        val ctx = applicationContext
+        runCatching { WeatherRepo.refreshIfStale(ctx) }
+        runCatching { ActivityRepo.refresh(ctx) }
+        SystemWidget().updateAll(ctx)
+        DashboardWidget().updateAll(ctx)
         return Result.success()
     }
 
@@ -27,8 +36,10 @@ class RefreshWorker(context: Context, params: WorkerParameters) : CoroutineWorke
                 .enqueueUniquePeriodicWork(NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }
 
-        fun cancel(context: Context) {
-            WorkManager.getInstance(context).cancelUniqueWork(NAME)
+        fun runNow(context: Context) {
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "$NAME-now", ExistingWorkPolicy.REPLACE, OneTimeWorkRequestBuilder<RefreshWorker>().build()
+            )
         }
     }
 }

@@ -46,7 +46,12 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon
+          set -o pipefail
+          if ! ./gradlew assembleRelease --no-daemon 2>&1 | tee build.log; then
+            ERR=$(grep -E "^e: |error:|What went wrong|AAPT|Could not" -A2 build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=Build falhou::$ERR"
+            exit 1
+          fi
           cp app/build/outputs/apk/release/app-release.apk "wigters-${VERSION_NAME}.apk"
 
       - name: Publicar release

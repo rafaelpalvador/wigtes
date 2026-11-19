@@ -69,4 +69,6 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.activity.compose)
+    implementation(libs.health.connect)
+    implementation(libs.lifecycle.runtime.ktx)
 }

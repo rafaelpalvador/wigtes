@@ -3,4 +3,6 @@
     <string name="app_name">Wigters</string>
     <string name="widget_system_name">Painel do sistema</string>
     <string name="widget_system_desc">RAM, CPU, brilho, bateria, armazenamento e atalhos rápidos</string>
+    <string name="widget_dashboard_name">Painel do dia</string>
+    <string name="widget_dashboard_desc">Relógio, agenda, clima, atividade, timer, apps e música</string>
 </resources>
