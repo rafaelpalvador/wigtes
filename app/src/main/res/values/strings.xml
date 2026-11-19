@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wigters</string>
+    <string name="widget_system_name">Painel do sistema</string>
+    <string name="widget_system_desc">RAM, CPU, brilho, bateria, armazenamento e atalhos rápidos</string>
+</resources>
