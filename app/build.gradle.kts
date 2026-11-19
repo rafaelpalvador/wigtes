@@ -9,7 +9,7 @@ val keystorePath: String? = System.getenv("KEYSTORE_PATH")
 
 android {
     namespace = "com.wigters.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.wigters.app"
