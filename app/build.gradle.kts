@@ -20,6 +20,14 @@ android {
     }
 
     signingConfigs {
+        // Chave de debug fixa no repositório: mesma assinatura em todo build,
+        // então o Obtainium consegue atualizar sem configurar secrets.
+        getByName("debug") {
+            storeFile = rootProject.file("signing/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         create("release") {
             if (keystorePath != null) {
                 storeFile = file(keystorePath)

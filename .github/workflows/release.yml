@@ -30,7 +30,7 @@ jobs:
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
           else
-            echo "::warning::Sem KEYSTORE_BASE64 — o APK sai assinado com chave de debug e o Obtainium não vai conseguir atualizar."
+            echo "Usando a chave fixa de signing/debug.keystore"
           fi
 
       - name: Versão
