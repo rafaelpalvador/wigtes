@@ -46,6 +46,7 @@ import com.wigters.app.data.CalendarRepo
 import com.wigters.app.data.NowPlaying
 import com.wigters.app.data.WeatherRepo
 import com.wigters.app.widget.DashboardWidgetReceiver
+import com.wigters.app.widget.StackWidgetReceiver
 import com.wigters.app.widget.SystemWidgetReceiver
 import com.wigters.app.work.RefreshWorker
 import kotlinx.coroutines.launch
@@ -98,16 +99,20 @@ private fun Home(tick: Int, onChanged: () -> Unit) {
     ) {
         Text("Wigters", style = MaterialTheme.typography.displaySmall)
         Text(
-            "Dois widgets para a tela inicial: Painel do sistema e Painel do dia. " +
+            "Widgets para a tela inicial: o Wigters junta o Painel do sistema e o Painel do dia, com pontinhos para alternar. " +
                 "Adicione pelos botões ou segurando a tela inicial › Widgets › Wigters.",
             style = MaterialTheme.typography.bodyLarge
         )
 
+        Button(modifier = Modifier.fillMaxWidth(), onClick = { pin(context, StackWidgetReceiver::class.java) }) {
+            Text("Adicionar Wigters (2 páginas)")
+        }
+        Text("Ou os painéis separados:", style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(modifier = Modifier.weight(1f), onClick = { pin(context, SystemWidgetReceiver::class.java) }) {
+            FilledTonalButton(modifier = Modifier.weight(1f), onClick = { pin(context, SystemWidgetReceiver::class.java) }) {
                 Text("Painel do sistema")
             }
-            Button(modifier = Modifier.weight(1f), onClick = { pin(context, DashboardWidgetReceiver::class.java) }) {
+            FilledTonalButton(modifier = Modifier.weight(1f), onClick = { pin(context, DashboardWidgetReceiver::class.java) }) {
                 Text("Painel do dia")
             }
         }

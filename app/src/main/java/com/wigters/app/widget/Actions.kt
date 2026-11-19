@@ -13,7 +13,7 @@ import com.wigters.app.data.SystemStats
 /** Toque no cabeçalho: atualiza os números na hora. */
 class RefreshAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        SystemWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }
 
@@ -24,7 +24,7 @@ class ToggleTorchAction : ActionCallback {
         val id = SystemStats.torchCameraId(cm) ?: return
         val on = SystemStats.readTorchState(context) ?: false
         runCatching { cm.setTorchMode(id, !on) }
-        SystemWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }
 
@@ -48,6 +48,6 @@ class ToggleRingerAction : ActionCallback {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
-        SystemWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }

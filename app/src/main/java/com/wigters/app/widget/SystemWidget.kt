@@ -57,12 +57,12 @@ class SystemWidgetReceiver : GlanceAppWidgetReceiver() {
 private val TILE_H = 76.dp
 
 @Composable
-private fun SystemContent(s: SystemStats) {
-    val width = LocalSize.current.width
+internal fun SystemContent(s: SystemStats, endInset: Dp = 0.dp) {
+    val width = LocalSize.current.width - endInset
     val inner = width - 18.dp                 // largura útil dentro do painel
     val half = (inner - 7.dp) / 2 - 26.dp     // largura útil dentro de um bloco pequeno
 
-    GlassPanel {
+    GlassPanel(endInset) {
         Header(s)
         VGap()
         Row(GlanceModifier.fillMaxWidth()) {

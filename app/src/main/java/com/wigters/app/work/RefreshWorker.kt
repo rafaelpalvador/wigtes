@@ -1,7 +1,6 @@
 package com.wigters.app.work
 
 import android.content.Context
-import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -11,8 +10,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.wigters.app.data.ActivityRepo
 import com.wigters.app.data.WeatherRepo
-import com.wigters.app.widget.DashboardWidget
-import com.wigters.app.widget.SystemWidget
+import com.wigters.app.widget.updateAllWidgets
 import java.util.concurrent.TimeUnit
 
 /** Atualiza os widgets a cada 15 minutos (o mínimo que o Android permite). */
@@ -22,8 +20,7 @@ class RefreshWorker(context: Context, params: WorkerParameters) : CoroutineWorke
         val ctx = applicationContext
         runCatching { WeatherRepo.refreshIfStale(ctx) }
         runCatching { ActivityRepo.refresh(ctx) }
-        SystemWidget().updateAll(ctx)
-        DashboardWidget().updateAll(ctx)
+        updateAllWidgets(ctx)
         return Result.success()
     }
 

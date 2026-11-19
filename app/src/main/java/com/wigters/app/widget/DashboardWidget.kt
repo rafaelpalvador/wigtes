@@ -112,8 +112,8 @@ class DashboardWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 @Composable
-private fun DashboardContent(d: DashboardData) {
-    GlassPanel {
+internal fun DashboardContent(d: DashboardData, endInset: androidx.compose.ui.unit.Dp = 0.dp) {
+    GlassPanel(endInset) {
         ClockHeader(d)
         VGap()
         EventRow(d)
@@ -348,14 +348,14 @@ private fun MusicRow(m: Media?, allowed: Boolean) {
 class TimerToggleAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         TimerStore.toggle(context)
-        DashboardWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }
 
 class TimerResetAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         TimerStore.reset(context)
-        DashboardWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }
 
@@ -363,7 +363,7 @@ class RefreshWeatherAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         WeatherRepo.refreshIfStale(context, force = true)
         ActivityRepo.refresh(context)
-        DashboardWidget().update(context, glanceId)
+        updateAllWidgets(context)
     }
 }
 
@@ -374,7 +374,7 @@ class MediaPlayPauseAction : ActionCallback {
         if (playing) c.transportControls.pause() else c.transportControls.play()
         delay(400)
         NowPlaying.save(context, c)
-        DashboardWidget().updateAll(context)
+        updateAllWidgets(context)
     }
 }
 
@@ -384,6 +384,6 @@ class MediaNextAction : ActionCallback {
         c.transportControls.skipToNext()
         delay(700)
         NowPlaying.save(context, c)
-        DashboardWidget().updateAll(context)
+        updateAllWidgets(context)
     }
 }

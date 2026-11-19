@@ -12,8 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
-import androidx.glance.appwidget.updateAll
-import com.wigters.app.widget.DashboardWidget
+import com.wigters.app.widget.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -135,7 +134,7 @@ class MediaListenerService : NotificationListenerService() {
         pushJob = scope.launch {
             delay(300)
             NowPlaying.save(this@MediaListenerService, controller)
-            DashboardWidget().updateAll(this@MediaListenerService)
+            updateAllWidgets(this@MediaListenerService)
         }
     }
 }

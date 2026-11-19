@@ -71,4 +71,5 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.health.connect)
     implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.datastore.preferences)
 }

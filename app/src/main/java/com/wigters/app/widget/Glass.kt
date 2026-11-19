@@ -17,6 +17,7 @@ import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -60,8 +61,8 @@ fun cp(color: Color) = ColorProvider(color)
 
 /** Painel externo com "vidro": gradiente translúcido e borda clara. */
 @Composable
-fun GlassPanel(content: @Composable ColumnScope.() -> Unit) {
-    Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun GlassPanel(endInset: Dp = 0.dp, content: @Composable ColumnScope.() -> Unit) {
+    Box(modifier = GlanceModifier.fillMaxSize().padding(end = endInset), contentAlignment = Alignment.Center) {
         Column(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -159,3 +160,10 @@ fun launch(context: Context, key: String, target: Intent): Action =
             .setData(Uri.parse("wigters://launch/$key"))
             .putExtra(Intent.EXTRA_INTENT, target)
     )
+
+/** Atualiza todos os widgets do app (separados e empilhado). */
+suspend fun updateAllWidgets(context: Context) {
+    SystemWidget().updateAll(context)
+    DashboardWidget().updateAll(context)
+    StackWidget().updateAll(context)
+}

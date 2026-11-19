@@ -5,4 +5,6 @@
     <string name="widget_system_desc">RAM, CPU, brilho, bateria, armazenamento e atalhos rápidos</string>
     <string name="widget_dashboard_name">Painel do dia</string>
     <string name="widget_dashboard_desc">Relógio, agenda, clima, atividade, timer, apps e música</string>
+    <string name="widget_stack_name">Wigters (2 páginas)</string>
+    <string name="widget_stack_desc">Painel do sistema e Painel do dia no mesmo widget; toque nos pontinhos para alternar</string>
 </resources>

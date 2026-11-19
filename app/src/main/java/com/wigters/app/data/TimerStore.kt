@@ -9,8 +9,7 @@ import android.media.RingtoneManager
 import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.VibratorManager
-import androidx.glance.appwidget.updateAll
-import com.wigters.app.widget.DashboardWidget
+import com.wigters.app.widget.updateAllWidgets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,7 +90,7 @@ class TimerDoneReceiver : BroadcastReceiver() {
         }
         val pending = goAsync()
         CoroutineScope(Dispatchers.Default).launch {
-            try { DashboardWidget().updateAll(context) } finally { pending.finish() }
+            try { updateAllWidgets(context) } finally { pending.finish() }
         }
     }
 }
