@@ -1,6 +1,22 @@
 package com.wigters.app
 
 import android.Manifest
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.asImageBitmap
+import com.wigters.app.data.AppPrefs
+import com.wigters.app.data.Slot
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -117,7 +133,22 @@ private fun Home(tick: Int, onChanged: () -> Unit) {
             }
         }
 
+        AppSlotsSection(tick, onChanged)
+
         Text("Permissões", style = MaterialTheme.typography.titleMedium)
+
+        PermissionCard(
+            title = "Brilho pelo widget",
+            text = "Permite que os botões − e + do bloco Brilho mudem o brilho da tela.",
+            granted = remember(tick) { Settings.System.canWrite(context) },
+        ) {
+            runCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, android.net.Uri.parse("package:${context.packageName}"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        }
 
         PermissionCard(
             title = "Agenda e localização",
@@ -184,4 +215,98 @@ private fun pin(context: Context, receiver: Class<*>) {
     if (awm.isRequestPinAppWidgetSupported) {
         awm.requestPinAppWidget(ComponentName(context, receiver), null, null)
     }
+}
+
+@Composable
+private fun AppSlotsSection(tick: Int, onChanged: () -> Unit) {
+    val context = LocalContext.current
+    var editing by remember { mutableStateOf<Slot?>(null) }
+    var version by remember { mutableIntStateOf(0) }
+
+    Text("Apps dos atalhos", style = MaterialTheme.typography.titleMedium)
+    Text(
+        "Escolha qual app abre em cada parte do Painel do dia.",
+        style = MaterialTheme.typography.bodyMedium
+    )
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(vertical = 6.dp)) {
+            Slot.entries.forEach { slot ->
+                val pkg = remember(tick, version) { AppPrefs.get(context, slot) }
+                val icon = remember(pkg) { pkg?.let { AppPrefs.icon(context, it, 96)?.asImageBitmap() } }
+                ListItem(
+                    modifier = Modifier.clickable { editing = slot },
+                    headlineContent = { Text(slot.title) },
+                    supportingContent = {
+                        Text(pkg?.let { AppPrefs.label(context, it) } ?: "Padrão · ${slot.hint}")
+                    },
+                    leadingContent = {
+                        if (icon != null) Image(icon, null, Modifier.size(36.dp))
+                        else Box(Modifier.size(36.dp))
+                    },
+                    trailingContent = { Text("Trocar", color = MaterialTheme.colorScheme.primary) },
+                    colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                )
+            }
+        }
+    }
+
+    editing?.let { slot ->
+        AppPickerDialog(
+            title = slot.title,
+            onDismiss = { editing = null },
+            onPick = { pkg ->
+                AppPrefs.set(context, slot, pkg)
+                editing = null
+                version++
+                onChanged()
+            }
+        )
+    }
+}
+
+@Composable
+private fun AppPickerDialog(title: String, onDismiss: () -> Unit, onPick: (String?) -> Unit) {
+    val context = LocalContext.current
+    val apps = remember { AppPrefs.installed(context) }
+    var query by remember { mutableStateOf("") }
+    val filtered = remember(query) { apps.filter { it.label.contains(query, ignoreCase = true) } }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    placeholder = { Text("Buscar app") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                LazyColumn(Modifier.heightIn(max = 420.dp)) {
+                    item {
+                        ListItem(
+                            modifier = Modifier.clickable { onPick(null) },
+                            headlineContent = { Text("Padrão") },
+                            supportingContent = { Text("Usar o comportamento original") },
+                            colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                        )
+                    }
+                    items(filtered, key = { it.packageName }) { app ->
+                        val icon = remember(app.packageName) { AppPrefs.icon(context, app.packageName, 96)?.asImageBitmap() }
+                        ListItem(
+                            modifier = Modifier.clickable { onPick(app.packageName) },
+                            headlineContent = { Text(app.label) },
+                            leadingContent = {
+                                if (icon != null) Image(icon, null, Modifier.size(32.dp)) else Box(Modifier.size(32.dp))
+                            },
+                            colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar") } }
+    )
 }

@@ -3,11 +3,11 @@
     android:description="@string/widget_system_desc"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="280dp"
-    android:minHeight="400dp"
+    android:minHeight="470dp"
     android:minResizeWidth="250dp"
     android:minResizeHeight="300dp"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
-    android:targetCellHeight="5"
+    android:targetCellHeight="6"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

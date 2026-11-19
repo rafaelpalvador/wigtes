@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -61,14 +63,14 @@ fun cp(color: Color) = ColorProvider(color)
 
 /** Painel externo com "vidro": gradiente translúcido e borda clara. */
 @Composable
-fun GlassPanel(endInset: Dp = 0.dp, content: @Composable ColumnScope.() -> Unit) {
+fun GlassPanel(endInset: Dp = 0.dp.k(), content: @Composable ColumnScope.() -> Unit) {
     Box(modifier = GlanceModifier.fillMaxSize().padding(end = endInset), contentAlignment = Alignment.Center) {
         Column(
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .background(ImageProvider(R.drawable.glass_panel))
-                .cornerRadius(30.dp)
-                .padding(9.dp),
+                .cornerRadius(30.dp.k())
+                .padding(9.dp.k()),
             content = content
         )
     }
@@ -80,14 +82,14 @@ fun GlassTile(
     modifier: GlanceModifier = GlanceModifier,
     height: Dp? = null,
     onClick: Action? = null,
-    hPad: Dp = 13.dp,
-    vPad: Dp = 11.dp,
+    hPad: Dp = 13.dp.k(),
+    vPad: Dp = 11.dp.k(),
     alignment: Alignment = Alignment.CenterStart,
     content: @Composable () -> Unit,
 ) {
     var m = modifier
         .background(ImageProvider(R.drawable.glass_tile))
-        .cornerRadius(22.dp)
+        .cornerRadius(22.dp.k())
     if (height != null) m = m.height(height)
     if (onClick != null) m = m.clickable(onClick)
     Box(modifier = m.padding(horizontal = hPad, vertical = vPad), contentAlignment = alignment) {
@@ -96,12 +98,12 @@ fun GlassTile(
 }
 
 @Composable
-fun Label(text: String, color: ColorProvider = Glass.text3, size: TextUnit = 12.sp, maxLines: Int = 1) {
+fun Label(text: String, color: ColorProvider = Glass.text3, size: TextUnit = 12.sp.k(), maxLines: Int = 1) {
     Text(text, maxLines = maxLines, style = TextStyle(color = color, fontSize = size, fontWeight = FontWeight.Medium))
 }
 
 @Composable
-fun Value(text: String, color: ColorProvider = Glass.white, size: TextUnit = 21.sp, maxLines: Int = 1) {
+fun Value(text: String, color: ColorProvider = Glass.white, size: TextUnit = 21.sp.k(), maxLines: Int = 1) {
     Text(text, maxLines = maxLines, style = TextStyle(color = color, fontSize = size, fontWeight = FontWeight.Bold))
 }
 
@@ -130,8 +132,8 @@ fun RoundButton(
     description: String,
     background: Color,
     action: Action?,
-    size: Dp = 44.dp,
-    iconSize: Dp = 22.dp,
+    size: Dp = 44.dp.k(),
+    iconSize: Dp = 22.dp.k(),
     tint: Color = Color.White,
     radius: Dp = size / 2,
 ) {
@@ -147,19 +149,34 @@ fun RoundButton(
     }
 }
 
-@Composable fun VGap(h: Dp = 7.dp) = Spacer(GlanceModifier.height(h))
-@Composable fun HGap(w: Dp = 7.dp) = Spacer(GlanceModifier.width(w))
+@Composable fun VGap(h: Dp = 7.dp.k()) = Spacer(GlanceModifier.height(h))
+@Composable fun HGap(w: Dp = 7.dp.k()) = Spacer(GlanceModifier.width(w))
 
 /**
  * Abre outra tela passando por uma Activity própria (intent explícito),
  * o que evita problemas com PendingIntents implícitos no Android 14+.
  */
-fun launch(context: Context, key: String, target: Intent): Action =
+fun launch(context: Context, key: String, target: Intent, fallback: Intent? = null): Action =
     actionStartActivity(
         Intent(context, LaunchActivity::class.java)
             .setData(Uri.parse("wigters://launch/$key"))
             .putExtra(Intent.EXTRA_INTENT, target)
+            .apply { if (fallback != null) putExtra(LaunchActivity.EXTRA_FALLBACK, fallback) }
     )
+
+/** Fator de escala do conteúdo, para caber na altura do widget. */
+val LocalK = staticCompositionLocalOf { 1f }
+
+@Composable fun Dp.k(): Dp = this * LocalK.current
+@Composable fun TextUnit.k(): TextUnit = this * LocalK.current
+
+/** Calcula o fator para uma página que precisa de [natural] de altura e fornece aos filhos. */
+@Composable
+fun Scaled(natural: Dp, content: @Composable () -> Unit) {
+    val h = androidx.glance.LocalSize.current.height
+    val k = (h / natural).coerceIn(0.72f, 1.18f)
+    CompositionLocalProvider(LocalK provides k) { content() }
+}
 
 /** Atualiza todos os widgets do app (separados e empilhado). */
 suspend fun updateAllWidgets(context: Context) {

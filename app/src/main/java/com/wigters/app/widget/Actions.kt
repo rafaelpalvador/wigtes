@@ -51,3 +51,22 @@ class ToggleRingerAction : ActionCallback {
         updateAllWidgets(context)
     }
 }
+
+val BRIGHTNESS_STEP = ActionParameters.Key<Int>("brightness_step")
+
+/** Brilho −/+ em passos de 10% (escala perceptual, como a barra do sistema). */
+class BrightnessAction : ActionCallback {
+    override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+        val step = parameters[BRIGHTNESS_STEP] ?: return
+        if (!Settings.System.canWrite(context)) return
+        val cr = context.contentResolver
+        runCatching {
+            Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)
+            val raw = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS, 128)
+            val pct = SystemStats.rawToPercent(raw)
+            val next = SystemStats.percentToRaw((pct + step).coerceIn(1, 100))
+            Settings.System.putInt(cr, Settings.System.SCREEN_BRIGHTNESS, next)
+        }
+        updateAllWidgets(context)
+    }
+}

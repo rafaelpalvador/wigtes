@@ -56,7 +56,7 @@ data class SystemStats(
 
             // Brilho (0–255 na maioria dos aparelhos)
             val rawBrightness = Settings.System.getInt(cr, Settings.System.SCREEN_BRIGHTNESS, -1)
-            val brightness = if (rawBrightness >= 0) (rawBrightness * 100 / 255).coerceIn(0, 100) else null
+            val brightness = if (rawBrightness >= 0) rawToPercent(rawBrightness) else null
 
             // Bateria
             val bm = context.getSystemService(BatteryManager::class.java)
@@ -116,6 +116,13 @@ data class SystemStats(
             }
             if (max > 0) (cur * 100 / max).toInt() else null
         }.getOrNull()
+
+        /** O valor bruto (0–255) é linear; a barra do sistema é perceptual (≈ raiz quadrada). */
+        fun rawToPercent(raw: Int): Int =
+            Math.round(Math.sqrt(raw.coerceIn(0, 255) / 255.0) * 100).toInt().coerceIn(0, 100)
+
+        fun percentToRaw(pct: Int): Int =
+            Math.round((pct / 100.0) * (pct / 100.0) * 255).toInt().coerceIn(1, 255)
 
         private fun File.readLongOrNull(): Long? =
             runCatching { readText().trim().toLong() }.getOrNull()
