@@ -19,11 +19,7 @@ Atualiza sozinho a cada 15 min, o mínimo que o Android permite, e na hora quand
 
 ## Releases (Obtainium)
 
-O workflow `.github/workflows/release.yml` compila e publica o APK sempre que você envia uma tag `v*`:
-
-```bash
-git tag v0.1.0 && git push origin v0.1.0
-```
+Cada push no `main` compila e publica um release automaticamente (versão = `version.txt` + número do build).
 
 Por padrão o APK é assinado com a chave fixa em `signing/debug.keystore`, então funciona sem configurar nada.
 Opcionalmente, para usar uma chave privada, adicione estes secrets (Settings › Secrets and variables › Actions) — trocar de chave exige reinstalar o app uma vez:
